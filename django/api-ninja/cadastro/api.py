@@ -1,26 +1,18 @@
-from ninja import Router,UploadedFile
+from typing import List
+from ninja import Router
 from .models import Livro
 from django.shortcuts import get_object_or_404
 from django.forms.models import model_to_dict
-from .schemas import LivroSchema
+from .schemas import LivroSchema,ModelLivroSchema
 
 
 cadastro_router=Router()
 
 
-@cadastro_router.get('livro/')
+@cadastro_router.get('livro/',response=List[ModelLivroSchema])
 def listar(request):
-    livro=Livro.objects.all()
-    response=[
-        {
-            'id':i.id,
-            'titulo':i.titulo,
-            'descricao':i.descricao,
-            'autor':i.autor
-        }
-        for i in livro
-    ]
-    return response
+    livros=Livro.objects.all()
+    return livros
 
 @cadastro_router.get('livro/{id}')
 def listar_livro(request,id:int):
@@ -42,6 +34,21 @@ def livro_criar(request,livro:LivroSchema):
         return livro
     
     
-@cadastro_router.post('/file')
-def file_upload(request,file:UploadedFile):
+@cadastro_router.delete('livro/{id}',response={204:None})
+def delete_livro(request,id:int):
+    livro=get_object_or_404(Livro,id=id)
+    livro.delete()
+    return 204,None
+
+
+@cadastro_router.put('livro/{id}',response=LivroSchema)
+def update_livro(request,id:int,livro_update:LivroSchema):
+    Livro.objects.filter(id=id).update(**livro_update.dict())
+    
+    livro=get_object_or_404(Livro,id=id)
+    
+    livro.refresh_from_db()
+    
+    return livro
+    
     
