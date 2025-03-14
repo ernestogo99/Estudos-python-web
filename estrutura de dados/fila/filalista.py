@@ -9,10 +9,14 @@ class Fila:
         return len(self.items)==0
     
     def primeiro_fila(self):
+        if self.vazia():
+            return "Fila vazia"
         return self.items[0]
     
     def ultimo_fila(self):
-        return self.items[0]
+        if self.vazia():
+            return "Fila vazia"
+        return self.items[-1]
     
     def tamanho(self):
         return len(self.items)    
